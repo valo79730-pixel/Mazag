@@ -39,9 +39,10 @@
   .nav-links { display: flex; gap: 24px; align-items: center; list-style: none; }
   .nav-links a { text-decoration: none; font-size: 14px; opacity: 0.85; }
   .nav-links a:hover { opacity: 1; color: var(--copper); }
-  .cart-btn { background: none; border: 1px solid rgba(245,237,227,0.35); color: var(--cream); border-radius: 999px; padding: 7px 16px; font-size: 14px; display: flex; gap: 8px; align-items: center; }
+  .cart-btn { background: none; border: 1px solid rgba(245,237,227,0.35); color: var(--cream); border-radius: 999px; padding: 8px 14px; font-size: 14px; display: flex; gap: 7px; align-items: center; }
   .cart-btn:hover { border-color: var(--copper); color: var(--copper); }
-  .cart-count { background: var(--copper); color: var(--espresso-deep); border-radius: 999px; min-width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }
+  .cart-count { background: var(--copper); color: var(--espresso-deep); border-radius: 999px; min-width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; transition: transform 0.15s; }
+  .cart-count.pop { transform: scale(1.35); }
   @media (max-width: 720px) { .nav-links li.hide-m { display: none; } }
 
   .hero { background: var(--espresso); color: var(--cream); text-align: center; padding: clamp(56px, 10vh, 104px) 20px clamp(64px, 10vh, 112px); }
@@ -172,9 +173,10 @@
   .msg { border-radius: 14px; padding: 10px 14px; font-size: 14px; max-width: 85%; line-height: 1.55; }
   .msg.bot { background: var(--cream); align-self: flex-start; }
   .msg.user { background: var(--copper); color: var(--espresso-deep); align-self: flex-end; }
-  .chat-input { display: flex; gap: 8px; padding: 12px 14px; border-top: 1px solid rgba(43,29,22,0.1); }
-  .chat-input input { flex: 1; border: 1px solid rgba(43,29,22,0.2); border-radius: 999px; padding: 9px 15px; font-family: var(--font-body); font-size: 14px; background: #fff; }
-  .chat-input button { background: var(--espresso); color: var(--cream); border: none; border-radius: 999px; padding: 9px 16px; font-size: 14px; }
+  .chat-input { display: flex; gap: 8px; padding: 12px 14px; border-top: 1px solid rgba(43,29,22,0.1); align-items: center; }
+  .chat-input input { flex: 1; min-width: 0; border: 1px solid rgba(43,29,22,0.2); border-radius: 999px; padding: 9px 15px; font-family: var(--font-body); font-size: 14px; background: #fff; }
+  .chat-input button { flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; background: var(--espresso); color: var(--cream); border: none; display: flex; align-items: center; justify-content: center; padding: 0; }
+  .chat-input button:hover { background: var(--copper); color: var(--espresso-deep); }
 
   @media (prefers-reduced-motion: reduce) {
     * { animation: none !important; transition: none !important; }
@@ -190,7 +192,13 @@
     <li class="hide-m"><a href="#packages">Packages</a></li>
     <li class="hide-m"><a href="#blends">Blends</a></li>
     <li class="hide-m"><a href="track.html">Track order</a></li>
-    <li><button class="cart-btn" id="cartBtn" aria-label="Open your order">Order <span class="cart-count" id="cartCount">0</span></button></li>
+    <li><button class="cart-btn" id="cartBtn" aria-label="Open your cart">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <path d="M5.5 8h13l-1.3 11.2a1.5 1.5 0 0 1-1.5 1.3H8.3a1.5 1.5 0 0 1-1.5-1.3L5.5 8z"/>
+        <path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>
+      </svg>
+      <span class="cart-count" id="cartCount">0</span>
+    </button></li>
   </ul>
 </nav>
 
@@ -285,7 +293,7 @@
 
 <aside class="drawer" id="drawer" aria-label="Your order">
   <div class="drawer-head">
-    <h3>Your order</h3>
+    <h3>Your cart</h3>
     <button class="drawer-close" id="drawerClose" aria-label="Close">&times;</button>
   </div>
   <div class="drawer-items" id="drawerItems"></div>
@@ -337,14 +345,16 @@
   </div>
   <div class="chat-input">
     <input id="chatInput" type="text" placeholder="عايز قهوة تقيلة للصبح..." dir="auto">
-    <button id="chatSend">Send</button>
+    <button id="chatSend" aria-label="Send">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg>
+    </button>
   </div>
 </div>
 
 <script>
   /* When the FastAPI backend is live, set API_BASE to its URL (e.g. "https://mazag.example.com").
      Empty string = demo mode: orders are simulated locally so the page works standalone. */
-  const API_BASE = "https://mazag-g3nz.onrender.com";
+  const API_BASE = "";
 
   const PRODUCTS = {
     sabahi:  { name: "Sabahi",  ar: "صباحي", price: 290, notes: "Breakfast blend, medium roast. Chocolate and hazelnut.", },
@@ -479,7 +489,11 @@
     const inc = e.target.closest("[data-inc]");
     const dec = e.target.closest("[data-dec]");
     const contact = e.target.closest("[data-contact]");
-    if (add) { const k = add.dataset.add; cart[k] = (cart[k] || 0) + 1; openDrawer(); }
+    if (add) {
+      const k = add.dataset.add; cart[k] = (cart[k] || 0) + 1; openDrawer();
+      const badge = document.getElementById("cartCount");
+      badge.classList.add("pop"); setTimeout(() => badge.classList.remove("pop"), 200);
+    }
     if (inc) { cart[inc.dataset.inc]++; renderCart(); }
     if (dec) { cart[dec.dataset.dec] = Math.max(0, cart[dec.dataset.dec] - 1); renderCart(); }
     if (contact) { openChat("عايز أعرف تفاصيل باقة الشركات 🏢"); }
