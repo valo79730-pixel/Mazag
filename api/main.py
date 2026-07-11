@@ -80,6 +80,7 @@ ORDERING & DELIVERY:
 - Tracking: /track page with phone + order code (MZ-XXXX).
 
 RULES:
+- PLAIN TEXT ONLY: never use markdown — no asterisks (**), no bullets, no headers. Chat bubbles render raw text. Emojis are fine, sparingly.
 - NEVER invent prices, discounts, products, or policies not listed above. If unsure, say you'll check and suggest WhatsApp.
 - If someone wants to order, guide them to the checkout on the page (or the package button) — you don't take payment in chat.
 - Stay on topic: coffee, Mazag products, orders. Politely redirect anything else.
@@ -325,6 +326,7 @@ def chat(body: ChatIn, request: Request):
         config={"system_instruction": SYSTEM_PROMPT + customer_context, "max_output_tokens": 1500},
     )
     answer = (resp.text or "").strip() or "معلش، حصلت مشكلة صغيرة — جرب تاني."
+    answer = re.sub(r"\*+", "", answer)  # prompts reduce probability; this makes it impossible
 
     history = (history + [
         {"role": "user", "text": msg},
