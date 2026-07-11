@@ -23,6 +23,11 @@ load_dotenv()
 
 GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
 DB_PATH = os.environ.get("DB_PATH", "mazag.db")
+DATABASE_URL = os.environ.get("DATABASE_URL", "")  # set -> Postgres (Neon/Render); empty -> SQLite locally
+IS_PG = bool(DATABASE_URL)
+if IS_PG:
+    import psycopg
+    from psycopg.rows import dict_row
 ALLOWED_ORIGINS = os.environ.get("ALLOWED_ORIGINS", "*").split(",")
 MODEL = os.environ.get("GEMINI_MODEL", "gemini-3-flash-preview")
 MAX_HISTORY = 12  # turns kept per chat session
@@ -81,39 +86,54 @@ RULES:
 """
 
 # ---------------------------------------------------------------- db
+def Q(sql: str) -> str:
+    """Translate '?' placeholders to '%s' when running on Postgres."""
+    return sql.replace("?", "%s") if IS_PG else sql
+
+
+SCHEMA = """
+CREATE TABLE IF NOT EXISTS customers (
+    phone TEXT PRIMARY KEY,
+    name TEXT, area TEXT, address TEXT,
+    segment TEXT,
+    orders_count INTEGER DEFAULT 0,
+    total_spent INTEGER DEFAULT 0,
+    created_at TEXT, updated_at TEXT
+);
+CREATE TABLE IF NOT EXISTS orders (
+    id {pk},
+    code TEXT UNIQUE,
+    phone TEXT REFERENCES customers(phone),
+    items TEXT, notes TEXT,
+    total INTEGER,
+    payment_method TEXT DEFAULT 'cod',
+    status TEXT DEFAULT 'pending',
+    created_at TEXT
+);
+CREATE TABLE IF NOT EXISTS chat_sessions (
+    session_id TEXT PRIMARY KEY,
+    history TEXT,
+    updated_at TEXT
+);
+"""
+
+
 def init_db():
+    schema = SCHEMA.format(pk="SERIAL PRIMARY KEY" if IS_PG else "INTEGER PRIMARY KEY AUTOINCREMENT")
     with db() as con:
-        con.executescript("""
-        CREATE TABLE IF NOT EXISTS customers (
-            phone TEXT PRIMARY KEY,
-            name TEXT, area TEXT, address TEXT,
-            segment TEXT,
-            orders_count INTEGER DEFAULT 0,
-            total_spent INTEGER DEFAULT 0,
-            created_at TEXT, updated_at TEXT
-        );
-        CREATE TABLE IF NOT EXISTS orders (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            code TEXT UNIQUE,
-            phone TEXT REFERENCES customers(phone),
-            items TEXT, notes TEXT,
-            total INTEGER,
-            payment_method TEXT DEFAULT 'cod',
-            status TEXT DEFAULT 'pending',
-            created_at TEXT
-        );
-        CREATE TABLE IF NOT EXISTS chat_sessions (
-            session_id TEXT PRIMARY KEY,
-            history TEXT,
-            updated_at TEXT
-        );
-        """)
+        if IS_PG:
+            con.execute(schema)
+        else:
+            con.executescript(schema)
 
 
 @contextmanager
 def db():
-    con = sqlite3.connect(DB_PATH)
-    con.row_factory = sqlite3.Row
+    if IS_PG:
+        con = psycopg.connect(DATABASE_URL, row_factory=dict_row)
+    else:
+        con = sqlite3.connect(DB_PATH)
+        con.row_factory = sqlite3.Row
     try:
         yield con
         con.commit()
@@ -219,24 +239,25 @@ def create_order(order: OrderIn, request: Request):
     c = order.customer
     with db() as con:
         con.execute(
-            """INSERT INTO customers (phone, name, area, address, segment, orders_count, total_spent, created_at, updated_at)
+            Q("""INSERT INTO customers (phone, name, area, address, segment, orders_count, total_spent, created_at, updated_at)
                VALUES (?, ?, ?, ?, ?, 1, ?, ?, ?)
                ON CONFLICT(phone) DO UPDATE SET
                  name = excluded.name, area = excluded.area, address = excluded.address,
                  segment = COALESCE(excluded.segment, customers.segment),
                  orders_count = customers.orders_count + 1,
                  total_spent = customers.total_spent + excluded.total_spent,
-                 updated_at = excluded.updated_at""",
+                 updated_at = excluded.updated_at"""),
             (c.phone, c.name, c.area, c.address, seg, total, now(), now()),
         )
-        cur = con.execute(
-            """INSERT INTO orders (code, phone, items, notes, total, payment_method, created_at)
-               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+        row = con.execute(
+            Q("""INSERT INTO orders (code, phone, items, notes, total, payment_method, created_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id"""),
             ("TMP", c.phone, json.dumps([it.model_dump() for it in order.items]),
              order.notes, total, order.payment_method, now()),
-        )
-        code = f"MZ-{1000 + cur.lastrowid}"
-        con.execute("UPDATE orders SET code = ? WHERE id = ?", (code, cur.lastrowid))
+        ).fetchone()
+        oid = row["id"]
+        code = f"MZ-{1000 + oid}"
+        con.execute(Q("UPDATE orders SET code = ? WHERE id = ?"), (code, oid))
 
     # TODO phase 2: send WhatsApp confirmation message here (status pending -> confirmed on reply)
     return {"order_code": code, "total": total, "status": "pending"}
@@ -248,7 +269,7 @@ def track(phone: str, code: str, request: Request):
     phone = re.sub(r"[\s-]", "", phone)
     with db() as con:
         row = con.execute(
-            "SELECT status, created_at FROM orders WHERE phone = ? AND code = ?",
+            Q("SELECT status, created_at FROM orders WHERE phone = ? AND code = ?"),
             (phone, code.upper().strip()),
         ).fetchone()
     if not row:
@@ -269,11 +290,11 @@ def chat(body: ChatIn, request: Request):
     if PHONE_RE.match(phone):
         with db() as con:
             cust = con.execute(
-                "SELECT name, segment, orders_count, total_spent FROM customers WHERE phone = ?",
+                Q("SELECT name, segment, orders_count, total_spent FROM customers WHERE phone = ?"),
                 (phone,),
             ).fetchone()
             last = con.execute(
-                "SELECT items, status, code FROM orders WHERE phone = ? ORDER BY id DESC LIMIT 1",
+                Q("SELECT items, status, code FROM orders WHERE phone = ? ORDER BY id DESC LIMIT 1"),
                 (phone,),
             ).fetchone()
         if cust:
@@ -290,7 +311,7 @@ def chat(body: ChatIn, request: Request):
 
     with db() as con:
         row = con.execute(
-            "SELECT history FROM chat_sessions WHERE session_id = ?", (session_id,)
+            Q("SELECT history FROM chat_sessions WHERE session_id = ?"), (session_id,)
         ).fetchone()
     history = json.loads(row["history"]) if row else []
 
@@ -311,8 +332,8 @@ def chat(body: ChatIn, request: Request):
     ])[-MAX_HISTORY * 2:]
     with db() as con:
         con.execute(
-            """INSERT INTO chat_sessions (session_id, history, updated_at) VALUES (?, ?, ?)
-               ON CONFLICT(session_id) DO UPDATE SET history = excluded.history, updated_at = excluded.updated_at""",
+            Q("""INSERT INTO chat_sessions (session_id, history, updated_at) VALUES (?, ?, ?)
+               ON CONFLICT(session_id) DO UPDATE SET history = excluded.history, updated_at = excluded.updated_at"""),
             (session_id, json.dumps(history, ensure_ascii=False), now()),
         )
 
