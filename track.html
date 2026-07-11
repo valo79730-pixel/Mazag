@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Track your order — Mazag مزاج</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --espresso: #2B1D16; --espresso-deep: #1F1510; --cream: #F5EDE3; --cream-card: #FDFAF5;
+    --copper: #C4763B; --copper-dark: #A05C28; --leaf: #3E4A3D; --ink-soft: #6B5D52;
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-body: 'IBM Plex Sans Arabic', -apple-system, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: var(--font-body); background: var(--cream); color: var(--espresso); line-height: 1.7; font-size: 16px; min-height: 100vh; display: flex; flex-direction: column; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--copper); outline-offset: 3px; }
+  .nav { display: flex; align-items: center; justify-content: space-between; padding: 16px clamp(20px, 5vw, 56px); background: var(--espresso); color: var(--cream); }
+  .nav-mark { font-family: var(--font-display); font-size: 20px; letter-spacing: 0.3em; font-weight: 500; text-decoration: none; }
+  .nav-mark span { color: var(--copper); }
+  .nav a.back { font-size: 14px; text-decoration: none; opacity: 0.85; }
+  .nav a.back:hover { color: var(--copper); opacity: 1; }
+  main { flex: 1; display: flex; align-items: flex-start; justify-content: center; padding: clamp(40px, 8vh, 80px) 20px; }
+  .box { background: var(--cream-card); border: 1px solid rgba(43,29,22,0.08); border-radius: 20px; padding: clamp(26px, 4vw, 40px); width: min(480px, 100%); }
+  h1 { font-family: var(--font-display); font-size: clamp(26px, 4vw, 34px); font-weight: 500; }
+  .sub { color: var(--ink-soft); font-size: 14.5px; margin-top: 6px; }
+  label { display: block; font-size: 13.5px; font-weight: 600; margin: 16px 0 6px; }
+  input { width: 100%; padding: 12px 14px; border: 1px solid rgba(43,29,22,0.2); border-radius: 10px; font-family: var(--font-body); font-size: 15px; background: #fff; }
+  input:focus { border-color: var(--copper); outline: none; }
+  .err { color: #A83232; font-size: 13.5px; margin-top: 10px; display: none; }
+  .go { width: 100%; margin-top: 20px; background: var(--copper); color: var(--espresso-deep); border: none; border-radius: 999px; padding: 14px; font-weight: 600; font-size: 15.5px; font-family: var(--font-body); cursor: pointer; }
+  .go:hover { background: #D68A4E; }
+  .result { display: none; margin-top: 28px; border-top: 1px dashed rgba(43,29,22,0.15); padding-top: 22px; }
+  .r-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px; }
+  .r-code { font-family: var(--font-display); font-size: 24px; font-weight: 600; color: var(--copper-dark); letter-spacing: 0.03em; }
+  .r-eta { font-size: 14px; color: var(--leaf); font-weight: 600; }
+  .timeline { list-style: none; margin-top: 20px; }
+  .timeline li { position: relative; padding: 0 0 22px 30px; }
+  .timeline li::before { content: ""; position: absolute; left: 7px; top: 6px; bottom: -6px; width: 2px; background: rgba(43,29,22,0.15); }
+  .timeline li:last-child::before { display: none; }
+  .dot { position: absolute; left: 0; top: 4px; width: 16px; height: 16px; border-radius: 50%; background: var(--cream); border: 2px solid rgba(43,29,22,0.25); }
+  li.done .dot { background: var(--copper); border-color: var(--copper); }
+  li.done::before { background: var(--copper); }
+  li.now .dot { background: var(--espresso); border-color: var(--espresso); }
+  .t-name { font-weight: 600; font-size: 15px; }
+  li.pending-step .t-name { color: var(--ink-soft); font-weight: 400; }
+  .t-ar { color: var(--ink-soft); font-size: 13.5px; }
+  li.done .t-ar, li.now .t-ar { color: var(--copper-dark); }
+  footer { background: var(--espresso-deep); color: #8A7A6C; font-size: 13.5px; padding: 22px clamp(20px, 5vw, 56px); text-align: center; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-mark" href="index.html">MAZ<span>A</span>G</a>
+  <a class="back" href="index.html">&larr; Back to shop</a>
+</nav>
+
+<main>
+  <div class="box">
+    <h1>Track your order</h1>
+    <p class="sub" dir="rtl" lang="ar">اكتب رقم موبايلك وكود الطلب اللي وصلك، ونوريك طلبك وصل فين.</p>
+
+    <label for="tPhone">Phone</label>
+    <input id="tPhone" type="tel" inputmode="numeric" placeholder="01001234567">
+    <label for="tCode">Order code</label>
+    <input id="tCode" type="text" placeholder="MZ-1042" style="text-transform: uppercase;">
+    <p class="err" id="tErr" dir="rtl" lang="ar">مش لاقيين الطلب ده — اتأكد من الرقم والكود، أو كلمنا على واتساب.</p>
+    <button class="go" id="tGo">Find my order</button>
+
+    <div class="result" id="tResult">
+      <div class="r-head">
+        <span class="r-code" id="rCode">MZ-1042</span>
+        <span class="r-eta" id="rEta"></span>
+      </div>
+      <ul class="timeline" id="rTimeline"></ul>
+    </div>
+  </div>
+</main>
+
+<footer>Mazag — مزاج · Specialty coffee, Cairo</footer>
+
+<script>
+  /* Same switch as index.html — set API_BASE when the FastAPI backend is live. */
+  const API_BASE = "http://127.0.0.1:8010";
+
+  const STAGES = [
+    { key: "pending",   name: "Order received",   ar: "استلمنا طلبك" },
+    { key: "confirmed", name: "Confirmed on WhatsApp", ar: "اتأكد على واتساب" },
+    { key: "roasting",  name: "Roasting and packing",  ar: "بنحمّص ونجهّز" },
+    { key: "delivery",  name: "Out for delivery",  ar: "في الطريق ليك" },
+    { key: "delivered", name: "Delivered",         ar: "وصلت — بالهنا ☕" }
+  ];
+
+  const validPhone = (p) => /^01[0125][0-9]{8}$/.test(p.replace(/[\s-]/g, ""));
+
+  function render(statusIndex, code, eta) {
+    document.getElementById("rCode").textContent = code;
+    document.getElementById("rEta").textContent = eta || "";
+    document.getElementById("rTimeline").innerHTML = STAGES.map((s, i) => {
+      const cls = i < statusIndex ? "done" : i === statusIndex ? "now" : "pending-step";
+      return `<li class="${cls}"><span class="dot"></span>
+        <div class="t-name">${s.name}</div>
+        <div class="t-ar" dir="rtl" lang="ar">${s.ar}</div></li>`;
+    }).join("");
+    document.getElementById("tResult").style.display = "block";
+  }
+
+  document.getElementById("tGo").addEventListener("click", async () => {
+    const phone = document.getElementById("tPhone").value.trim().replace(/[\s-]/g, "");
+    const code = document.getElementById("tCode").value.trim().toUpperCase();
+    const err = document.getElementById("tErr");
+    err.style.display = "none";
+    document.getElementById("tResult").style.display = "none";
+    if (!validPhone(phone) || !/^MZ-\d{4}$/.test(code)) { err.style.display = "block"; return; }
+
+    if (API_BASE) {
+      try {
+        const res = await fetch(`${API_BASE}/api/orders/track?phone=${encodeURIComponent(phone)}&code=${encodeURIComponent(code)}`);
+        if (!res.ok) { err.style.display = "block"; return; }
+        const data = await res.json();
+        render(STAGES.findIndex(s => s.key === data.status), code, data.eta || "");
+        return;
+      } catch { err.style.display = "block"; return; }
+    }
+    /* Demo mode: show a sample in-progress order */
+    render(2, code, "Arrives Tue–Wed");
+  });
+</script>
+</body>
+</html>

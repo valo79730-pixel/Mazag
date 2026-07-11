@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mazag — مزاج | Specialty coffee packages, roasted in Cairo</title>
+<meta name="description" content="Mazag is Egyptian specialty coffee. Coffee packages for every mood, roasted weekly in Cairo.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --espresso: #2B1D16;
+    --espresso-deep: #1F1510;
+    --cream: #F5EDE3;
+    --cream-card: #FDFAF5;
+    --copper: #C4763B;
+    --copper-dark: #A05C28;
+    --leaf: #3E4A3D;
+    --ink-soft: #6B5D52;
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-body: 'IBM Plex Sans Arabic', -apple-system, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--font-body); background: var(--cream); color: var(--espresso); line-height: 1.7; font-size: 16px; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--copper); outline-offset: 3px; }
+  button { font-family: var(--font-body); cursor: pointer; }
+
+  .nav {
+    position: sticky; top: 0; z-index: 40;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px clamp(20px, 5vw, 56px);
+    background: rgba(43, 29, 22, 0.92); backdrop-filter: blur(8px); color: var(--cream);
+  }
+  .nav-mark { font-family: var(--font-display); font-size: 20px; letter-spacing: 0.3em; font-weight: 500; text-decoration: none; }
+  .nav-mark span { color: var(--copper); }
+  .nav-links { display: flex; gap: 24px; align-items: center; list-style: none; }
+  .nav-links a { text-decoration: none; font-size: 14px; opacity: 0.85; }
+  .nav-links a:hover { opacity: 1; color: var(--copper); }
+  .cart-btn { background: none; border: 1px solid rgba(245,237,227,0.35); color: var(--cream); border-radius: 999px; padding: 7px 16px; font-size: 14px; display: flex; gap: 8px; align-items: center; }
+  .cart-btn:hover { border-color: var(--copper); color: var(--copper); }
+  .cart-count { background: var(--copper); color: var(--espresso-deep); border-radius: 999px; min-width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }
+  @media (max-width: 720px) { .nav-links li.hide-m { display: none; } }
+
+  .hero { background: var(--espresso); color: var(--cream); text-align: center; padding: clamp(56px, 10vh, 104px) 20px clamp(64px, 10vh, 112px); }
+  .hero-ar { font-size: clamp(80px, 16vw, 160px); font-weight: 600; line-height: 1.15; animation: rise 0.9s ease both; }
+  .hero-en { font-family: var(--font-display); color: var(--copper); font-size: clamp(18px, 3vw, 28px); letter-spacing: 0.5em; text-indent: 0.5em; margin-top: 4px; animation: rise 0.9s 0.15s ease both; }
+  .hero-tag { margin-top: 26px; font-size: clamp(16px, 2.4vw, 20px); color: #C9BBAB; animation: rise 0.9s 0.3s ease both; }
+  .hero-tag em { font-style: normal; color: var(--cream); }
+  .mood-block { margin-top: 48px; animation: rise 0.9s 0.45s ease both; }
+  .mood-q { font-size: 15px; color: #A8988A; margin-bottom: 16px; }
+  .moods { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; max-width: 640px; margin: 0 auto; }
+  .mood { background: none; border: 1px solid rgba(245,237,227,0.3); color: var(--cream); border-radius: 999px; padding: 12px 22px; font-size: 15px; transition: 0.2s; display: flex; flex-direction: column; align-items: center; line-height: 1.4; }
+  .mood small { font-size: 11px; color: #A8988A; letter-spacing: 0.08em; text-transform: uppercase; }
+  .mood:hover { border-color: var(--copper); background: var(--copper); color: var(--espresso-deep); transform: translateY(-2px); }
+  .mood:hover small { color: var(--espresso-deep); }
+  @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
+  .section { padding: clamp(60px, 9vh, 100px) clamp(20px, 6vw, 72px); max-width: 1180px; margin: 0 auto; }
+  .eyebrow { color: var(--copper-dark); font-size: 14px; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 10px; }
+  .section-title { font-family: var(--font-display); font-size: clamp(28px, 4.5vw, 42px); font-weight: 500; line-height: 1.25; }
+  .section-sub { color: var(--ink-soft); max-width: 580px; margin-top: 12px; }
+
+  /* Calculator */
+  .calc { background: var(--cream-card); border: 1px solid rgba(43,29,22,0.08); border-radius: 20px; padding: clamp(24px, 4vw, 40px); margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  @media (max-width: 760px) { .calc { grid-template-columns: 1fr; } }
+  .calc label { display: block; font-size: 14px; font-weight: 600; margin: 18px 0 8px; }
+  .calc label:first-child { margin-top: 0; }
+  .calc input[type=range] { width: 100%; accent-color: var(--copper); }
+  .calc select { width: 100%; padding: 10px 14px; border: 1px solid rgba(43,29,22,0.2); border-radius: 10px; font-family: var(--font-body); font-size: 15px; background: #fff; }
+  .calc-val { font-weight: 600; color: var(--copper-dark); }
+  .calc-out { background: var(--espresso); color: var(--cream); border-radius: 16px; padding: 26px; display: flex; flex-direction: column; justify-content: center; }
+  .calc-big { font-family: var(--font-display); font-size: 34px; font-weight: 500; line-height: 1.3; }
+  .calc-big span { color: var(--copper); }
+  .calc-note { color: #C9BBAB; font-size: 14px; margin-top: 10px; }
+  .calc-cta { margin-top: 20px; background: var(--copper); color: var(--espresso-deep); border: none; border-radius: 999px; padding: 12px 24px; font-weight: 600; font-size: 15px; align-self: flex-start; }
+  .calc-cta:hover { background: #D68A4E; }
+
+  /* Packages */
+  .pkg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 44px; }
+  .pkg { background: var(--cream-card); border: 1px solid rgba(43,29,22,0.08); border-radius: 18px; padding: 28px 24px; display: flex; flex-direction: column; position: relative; transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s; }
+  .pkg:hover { transform: translateY(-4px); box-shadow: 0 14px 32px rgba(43,29,22,0.1); }
+  .pkg.featured { border: 2px solid var(--copper); }
+  .pkg.flash { box-shadow: 0 0 0 3px rgba(196,118,59,0.35); border-color: var(--copper); }
+  .pkg-badge { position: absolute; top: -12px; inset-inline-start: 22px; background: var(--copper); color: var(--espresso-deep); font-size: 12px; font-weight: 600; border-radius: 999px; padding: 3px 12px; }
+  .pkg-seg { font-size: 12px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--leaf); font-weight: 600; }
+  .pkg-name { font-family: var(--font-display); font-size: 24px; font-weight: 500; margin-top: 6px; }
+  .pkg-ar { color: var(--copper-dark); font-size: 17px; font-weight: 500; }
+  .pkg-desc { color: var(--ink-soft); font-size: 14.5px; margin-top: 12px; flex: 1; }
+  .pkg-desc li { margin-inline-start: 18px; margin-top: 4px; }
+  .pkg-price { font-weight: 600; font-size: 22px; margin-top: 18px; }
+  .pkg-price small { color: var(--ink-soft); font-weight: 400; font-size: 13px; }
+  .pkg-save { color: var(--leaf); font-size: 13px; font-weight: 600; }
+  .pkg-btn { margin-top: 16px; background: var(--espresso); color: var(--cream); border: none; border-radius: 999px; padding: 12px 20px; font-size: 15px; font-weight: 500; transition: 0.2s; }
+  .pkg-btn:hover { background: var(--copper); color: var(--espresso-deep); }
+
+  /* Single bags */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-top: 40px; }
+  .card { background: var(--cream-card); border: 1px solid rgba(43,29,22,0.08); border-radius: 16px; padding: 22px 20px; display: flex; flex-direction: column; transition: transform 0.25s, box-shadow 0.25s; }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 10px 26px rgba(43,29,22,0.09); }
+  .card.flash { border-color: var(--copper); box-shadow: 0 0 0 3px rgba(196,118,59,0.3); }
+  .bag { width: 76px; margin: 0 auto 14px; }
+  .card-name { font-family: var(--font-display); font-size: 19px; font-weight: 500; }
+  .card-ar { color: var(--copper-dark); font-size: 15px; font-weight: 500; }
+  .card-notes { color: var(--ink-soft); font-size: 13.5px; margin-top: 8px; flex: 1; }
+  .card-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
+  .price { font-weight: 600; font-size: 16px; }
+  .price small { color: var(--ink-soft); font-weight: 400; font-size: 12px; }
+  .add-btn { background: none; border: 1px solid var(--espresso); color: var(--espresso); border-radius: 999px; padding: 8px 15px; font-size: 13.5px; font-weight: 500; transition: 0.2s; }
+  .add-btn:hover { background: var(--espresso); color: var(--cream); }
+
+  /* Story */
+  .story { background: var(--leaf); color: var(--cream); }
+  .story-inner { max-width: 1180px; margin: 0 auto; padding: clamp(60px, 9vh, 100px) clamp(20px, 6vw, 72px); }
+  .story .eyebrow { color: #D8C9A8; }
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 32px; margin-top: 40px; }
+  .step-num { font-family: var(--font-display); font-size: 38px; color: var(--copper); font-weight: 500; }
+  .step h3 { font-size: 18px; font-weight: 600; margin: 8px 0 6px; }
+  .step h3 span { color: #C9D4C6; font-weight: 400; margin-inline-start: 8px; }
+  .step p { color: #D7DDD4; font-size: 14.5px; }
+
+  footer { background: var(--espresso-deep); color: #8A7A6C; font-size: 13.5px; padding: 26px clamp(20px, 5vw, 56px); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  footer a { color: #B49C86; }
+
+  /* Cart drawer */
+  .drawer { position: fixed; top: 0; right: -400px; width: min(370px, 94vw); height: 100vh; z-index: 60; background: var(--cream-card); box-shadow: -12px 0 40px rgba(31,21,16,0.25); transition: right 0.3s ease; display: flex; flex-direction: column; }
+  .drawer.open { right: 0; }
+  .drawer-head { display: flex; justify-content: space-between; align-items: center; padding: 20px 22px; border-bottom: 1px solid rgba(43,29,22,0.1); }
+  .drawer-head h3 { font-family: var(--font-display); font-size: 20px; font-weight: 500; }
+  .drawer-close { background: none; border: none; font-size: 22px; color: var(--espresso); line-height: 1; }
+  .drawer-items { flex: 1; overflow-y: auto; padding: 14px 22px; }
+  .d-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 12px 0; border-bottom: 1px dashed rgba(43,29,22,0.12); font-size: 14px; }
+  .d-qty { display: flex; align-items: center; gap: 9px; }
+  .d-qty button { width: 26px; height: 26px; border-radius: 50%; border: 1px solid rgba(43,29,22,0.25); background: none; font-size: 15px; }
+  .d-qty button:hover { border-color: var(--copper); color: var(--copper-dark); }
+  .drawer-foot { padding: 18px 22px 24px; border-top: 1px solid rgba(43,29,22,0.1); }
+  .d-total { display: flex; justify-content: space-between; font-weight: 600; margin-bottom: 14px; }
+  .d-empty { color: var(--ink-soft); font-size: 14.5px; text-align: center; margin-top: 30px; }
+  .checkout-btn { width: 100%; background: var(--copper); color: var(--espresso-deep); border: none; border-radius: 999px; padding: 14px; font-weight: 600; font-size: 15.5px; }
+  .checkout-btn:hover { background: #D68A4E; }
+  .overlay { position: fixed; inset: 0; background: rgba(31,21,16,0.45); z-index: 50; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+  .overlay.show { opacity: 1; pointer-events: auto; }
+
+  /* Checkout modal */
+  .modal { position: fixed; inset: 0; z-index: 70; display: none; align-items: center; justify-content: center; padding: 18px; }
+  .modal.open { display: flex; }
+  .modal-box { background: var(--cream-card); border-radius: 20px; width: min(460px, 100%); max-height: 92vh; overflow-y: auto; padding: 28px 26px; position: relative; }
+  .modal-box h3 { font-family: var(--font-display); font-size: 24px; font-weight: 500; margin-bottom: 4px; }
+  .modal-sub { color: var(--ink-soft); font-size: 14px; margin-bottom: 18px; }
+  .f-label { display: block; font-size: 13.5px; font-weight: 600; margin: 14px 0 6px; }
+  .f-input, .f-area, .f-select { width: 100%; padding: 11px 14px; border: 1px solid rgba(43,29,22,0.2); border-radius: 10px; font-family: var(--font-body); font-size: 15px; background: #fff; }
+  .f-input:focus, .f-area:focus, .f-select:focus { border-color: var(--copper); outline: none; }
+  .f-area { resize: vertical; min-height: 70px; }
+  .f-err { color: #A83232; font-size: 13px; margin-top: 4px; display: none; }
+  .modal-close { position: absolute; top: 16px; inset-inline-end: 18px; background: none; border: none; font-size: 24px; color: var(--ink-soft); }
+  .hp { position: absolute; left: -9999px; opacity: 0; height: 0; width: 0; }
+  .confirm-view { text-align: center; padding: 12px 0; }
+  .confirm-code { font-family: var(--font-display); font-size: 34px; color: var(--copper-dark); font-weight: 600; margin: 12px 0; letter-spacing: 0.04em; }
+  .confirm-view p { color: var(--ink-soft); font-size: 14.5px; }
+  .confirm-view .wa-note { background: var(--cream); border-radius: 12px; padding: 14px; margin-top: 16px; font-size: 14px; color: var(--espresso); }
+
+  /* Chatbot stub */
+  .chat-fab { position: fixed; bottom: 22px; inset-inline-end: 22px; z-index: 45; width: 58px; height: 58px; border-radius: 50%; border: none; background: var(--copper); color: var(--espresso-deep); font-size: 24px; box-shadow: 0 8px 24px rgba(31,21,16,0.3); transition: transform 0.2s; }
+  .chat-fab:hover { transform: scale(1.07); }
+  .chat-panel { position: fixed; bottom: 92px; inset-inline-end: 22px; z-index: 45; width: min(340px, 90vw); background: var(--cream-card); border-radius: 18px; box-shadow: 0 18px 48px rgba(31,21,16,0.3); overflow: hidden; display: none; }
+  .chat-panel.open { display: block; }
+  .chat-head { background: var(--espresso); color: var(--cream); padding: 14px 18px; font-weight: 600; font-size: 15px; }
+  .chat-head small { display: block; font-weight: 400; color: #A8988A; font-size: 12px; }
+  .chat-body { padding: 16px; display: flex; flex-direction: column; gap: 10px; max-height: 300px; overflow-y: auto; }
+  .msg { border-radius: 14px; padding: 10px 14px; font-size: 14px; max-width: 85%; line-height: 1.55; }
+  .msg.bot { background: var(--cream); align-self: flex-start; }
+  .msg.user { background: var(--copper); color: var(--espresso-deep); align-self: flex-end; }
+  .chat-input { display: flex; gap: 8px; padding: 12px 14px; border-top: 1px solid rgba(43,29,22,0.1); }
+  .chat-input input { flex: 1; border: 1px solid rgba(43,29,22,0.2); border-radius: 999px; padding: 9px 15px; font-family: var(--font-body); font-size: 14px; background: #fff; }
+  .chat-input button { background: var(--espresso); color: var(--cream); border: none; border-radius: 999px; padding: 9px 16px; font-size: 14px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-mark" href="#top">MAZ<span>A</span>G</a>
+  <ul class="nav-links">
+    <li class="hide-m"><a href="#packages">Packages</a></li>
+    <li class="hide-m"><a href="#blends">Blends</a></li>
+    <li class="hide-m"><a href="track.html">Track order</a></li>
+    <li><button class="cart-btn" id="cartBtn" aria-label="Open your order">Order <span class="cart-count" id="cartCount">0</span></button></li>
+  </ul>
+</nav>
+
+<header class="hero" id="top">
+  <div class="hero-ar" dir="rtl" lang="ar">مزاج</div>
+  <div class="hero-en">MAZAG</div>
+  <p class="hero-tag" dir="rtl" lang="ar">لكل مزاج بُنّه — <em>every mood has its bean.</em></p>
+  <div class="mood-block">
+    <p class="mood-q" dir="rtl" lang="ar">إزاي مزاجك النهارده؟</p>
+    <div class="moods">
+      <button class="mood" data-target="card-sabahi"><span dir="rtl" lang="ar">بدري وصاحي</span><small>early riser</small></button>
+      <button class="mood" data-target="card-nesma"><span dir="rtl" lang="ar">رايق</span><small>easy mood</small></button>
+      <button class="mood" data-target="card-asmar"><span dir="rtl" lang="ar">محتاج تركيز</span><small>need focus</small></button>
+      <button class="mood" data-target="card-mazbout"><span dir="rtl" lang="ar">كلاسيكي</span><small>classic</small></button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="section" id="calculator">
+    <p class="eyebrow" dir="rtl" lang="ar">احسبها صح</p>
+    <h2 class="section-title">How much coffee do you actually need?</h2>
+    <p class="section-sub">Tell us how you drink, and we'll tell you which package covers you — no guessing, no running out mid-month.</p>
+    <div class="calc">
+      <div>
+        <label for="cups">Cups per day <span class="calc-val" id="cupsVal">2</span></label>
+        <input type="range" id="cups" min="1" max="6" step="1" value="2">
+        <label for="people">People drinking <span class="calc-val" id="peopleVal">1</span></label>
+        <input type="range" id="people" min="1" max="5" step="1" value="1">
+        <label for="method">How do you brew?</label>
+        <select id="method" class="f-select">
+          <option value="15">Espresso machine</option>
+          <option value="15">V60 / filter</option>
+          <option value="17">French press</option>
+          <option value="8" selected>Kanaka / Turkish</option>
+        </select>
+      </div>
+      <div class="calc-out">
+        <div class="calc-big" id="calcResult">You need <span>2 bags</span> a month</div>
+        <p class="calc-note" id="calcNote">That's about 480g of coffee monthly — Shahri covers you exactly.</p>
+        <button class="calc-cta" id="calcCta" data-target="pkg-shahri">Show my package</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="packages" style="padding-top: 0;">
+    <p class="eyebrow" dir="rtl" lang="ar">الباقات</p>
+    <h2 class="section-title">Pick your package</h2>
+    <p class="section-sub">Fresher, cheaper, and always in your kitchen. Subscriptions pause or change any time — one WhatsApp message.</p>
+    <div class="pkg-grid" id="pkgGrid"></div>
+  </section>
+
+  <section class="section" id="blends" style="padding-top: 0;">
+    <p class="eyebrow" dir="rtl" lang="ar">أكياس فردية</p>
+    <h2 class="section-title" style="font-size: clamp(24px, 3.5vw, 32px);">Single bags &amp; add-ons</h2>
+    <p class="section-sub">Trying one blend, or adding an extra bag to your package.</p>
+    <div class="grid" id="productGrid"></div>
+  </section>
+
+  <section class="story" id="story">
+    <div class="story-inner">
+      <p class="eyebrow" dir="rtl" lang="ar">الحكاية</p>
+      <h2 class="section-title">From origin to your kanaka</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h3>Source <span dir="rtl" lang="ar">المنبع</span></h3>
+          <p>Green beans selected from trusted farms in Ethiopia, Brazil, and Colombia — graded, cupped, and bought for the blend they belong to.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <h3>Roast <span dir="rtl" lang="ar">التحميص</span></h3>
+          <p>Roasted in Cairo every week in small batches. Every bag carries its roast date — freshness is the whole point.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <h3>Blend <span dir="rtl" lang="ar">الخلطة</span></h3>
+          <p>Recipes tuned by cup, not by cost. Each blend is built for one mood and one brewing method, consistent bag after bag.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span>Mazag — مزاج · Specialty coffee, Cairo</span>
+  <a href="track.html">Track your order</a>
+  <span dir="rtl" lang="ar">محمّص طازة كل أسبوع</span>
+</footer>
+
+<div class="overlay" id="overlay"></div>
+
+<aside class="drawer" id="drawer" aria-label="Your order">
+  <div class="drawer-head">
+    <h3>Your order</h3>
+    <button class="drawer-close" id="drawerClose" aria-label="Close">&times;</button>
+  </div>
+  <div class="drawer-items" id="drawerItems"></div>
+  <div class="drawer-foot">
+    <div class="d-total"><span>Total</span><span id="dTotal">EGP 0</span></div>
+    <button class="checkout-btn" id="checkoutBtn">Checkout — pay on delivery</button>
+  </div>
+</aside>
+
+<div class="modal" id="checkoutModal" role="dialog" aria-label="Checkout">
+  <div class="modal-box">
+    <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+    <div id="checkoutForm">
+      <h3>Almost there</h3>
+      <p class="modal-sub" dir="rtl" lang="ar">هنأكد الطلب معاك على واتساب قبل الشحن — الدفع عند الاستلام.</p>
+      <input type="text" class="hp" id="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <label class="f-label" for="fName">Name</label>
+      <input class="f-input" id="fName" type="text" autocomplete="name" placeholder="Ahmed Hassan">
+      <label class="f-label" for="fPhone">Phone (WhatsApp)</label>
+      <input class="f-input" id="fPhone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="01001234567">
+      <p class="f-err" id="phoneErr" dir="rtl" lang="ar">اكتب رقم موبايل مصري صحيح (11 رقم يبدأ بـ 01)</p>
+      <label class="f-label" for="fArea">Area</label>
+      <select class="f-select" id="fArea">
+        <option value="">Choose your area</option>
+        <option>Maadi</option><option>Zamalek</option><option>Heliopolis</option>
+        <option>Nasr City</option><option>New Cairo / Tagamo3</option><option>Sheikh Zayed / October</option>
+        <option>Dokki / Mohandessin</option><option>Other — Cairo/Giza</option>
+      </select>
+      <label class="f-label" for="fAddress">Address</label>
+      <textarea class="f-area" id="fAddress" placeholder="Street, building, floor, apartment"></textarea>
+      <label class="f-label" for="fNotes">Notes (optional)</label>
+      <input class="f-input" id="fNotes" type="text" placeholder="Grind for kanaka, call before arriving...">
+      <button class="checkout-btn" id="placeOrder" style="margin-top: 20px;">Place order</button>
+    </div>
+    <div class="confirm-view" id="confirmView" style="display:none;">
+      <h3 dir="rtl" lang="ar">تمام! طلبك وصلنا ☕</h3>
+      <div class="confirm-code" id="orderCode">MZ-0000</div>
+      <p>Keep this code — you can follow your order any time on the <a href="track.html">tracking page</a>.</p>
+      <div class="wa-note" dir="rtl" lang="ar">هتوصلك رسالة واتساب دلوقتي لتأكيد الطلب — رد عليها بـ"تمام" وإحنا نبدأ التحميص.</div>
+    </div>
+  </div>
+</div>
+
+<button class="chat-fab" id="chatFab" aria-label="Ask Mazag">&#9749;</button>
+<div class="chat-panel" id="chatPanel" role="dialog" aria-label="Ask Mazag">
+  <div class="chat-head">Ask Mazag <small dir="rtl" lang="ar">اسأل عن البن، الباقات، أو اطلب على طول</small></div>
+  <div class="chat-body" id="chatBody">
+    <div class="msg bot" dir="rtl" lang="ar">أهلاً! أنا مساعد مزاج ☕ قولي بتشرب قهوة إزاي وأنا أقولك أنسب باقة ليك.</div>
+  </div>
+  <div class="chat-input">
+    <input id="chatInput" type="text" placeholder="عايز قهوة تقيلة للصبح..." dir="auto">
+    <button id="chatSend">Send</button>
+  </div>
+</div>
+
+<script>
+  /* When the FastAPI backend is live, set API_BASE to its URL (e.g. "https://mazag.example.com").
+     Empty string = demo mode: orders are simulated locally so the page works standalone. */
+  const API_BASE = "http://127.0.0.1:8010";
+
+  const PRODUCTS = {
+    sabahi:  { name: "Sabahi",  ar: "صباحي", price: 290, notes: "Breakfast blend, medium roast. Chocolate and hazelnut.", },
+    nesma:   { name: "Nesma",   ar: "نسمة",  price: 380, notes: "Single origin Ethiopia, light roast. Floral, citrus." },
+    asmar:   { name: "Asmar",   ar: "أسمر",  price: 320, notes: "Espresso blend, dark roast. Cocoa, caramel, thick crema." },
+    mazbout: { name: "Mazbout", ar: "مظبوط", price: 300, notes: "Turkish grind with cardamom. The classic بن محوّج." }
+  };
+
+  const PACKAGES = {
+    taaruf: { name: "El Ta'aruf", ar: "التعارف", segment: "New to specialty", price: 550, unit: "one-time",
+      desc: ["4 × 125g — one of each blend", "Printed brew guide", "Find your mazag, then subscribe"], contact: false },
+    shahri: { name: "Shahri", ar: "شهري", segment: "Daily drinker", price: 560, unit: "/month", featured: true, save: "Save 7% vs single bags",
+      desc: ["2 × 250g every month", "Choose your blends each cycle", "Pause or swap any time"], contact: false },
+    beit: { name: "Beit Mazag", ar: "مزاج البيت", segment: "Households", price: 2290, unit: "/3 months", save: "Save 12% — one payment",
+      desc: ["3 × 250g monthly for 3 months", "Priority delivery slot", "Mix blends however you like"], contact: false },
+    sherka: { name: "Lel Sherka", ar: "للشركات", segment: "Offices", price: null, unit: "custom",
+      desc: ["2kg+ monthly, invoiced", "Machine and grind guidance", "Dedicated account contact"], contact: true }
+  };
+
+  /* ---- Render packages ---- */
+  const pkgGrid = document.getElementById("pkgGrid");
+  Object.entries(PACKAGES).forEach(([id, p]) => {
+    const el = document.createElement("article");
+    el.className = "pkg" + (p.featured ? " featured" : "");
+    el.id = "pkg-" + id;
+    el.innerHTML = `
+      ${p.featured ? '<span class="pkg-badge">Most popular</span>' : ""}
+      <div class="pkg-seg">${p.segment}</div>
+      <div class="pkg-name">${p.name} <span class="pkg-ar" dir="rtl" lang="ar">${p.ar}</span></div>
+      <ul class="pkg-desc">${p.desc.map(d => `<li>${d}</li>`).join("")}</ul>
+      ${p.save ? `<div class="pkg-save">${p.save}</div>` : ""}
+      <div class="pkg-price">${p.contact ? "Let's talk" : "EGP " + p.price.toLocaleString("en-EG")} <small>${p.contact ? "" : p.unit}</small></div>
+      <button class="pkg-btn" ${p.contact ? 'data-contact="1"' : `data-add="${id}"`}>${p.contact ? "Contact us" : "Choose this package"}</button>`;
+    pkgGrid.appendChild(el);
+  });
+
+  /* ---- Render single bags ---- */
+  const grid = document.getElementById("productGrid");
+  const bagSvg = (label) => `
+    <svg class="bag" viewBox="0 0 100 120" role="img" aria-label="${label} coffee bag">
+      <path d="M22 18 h56 l6 14 v72 a8 8 0 0 1 -8 8 h-52 a8 8 0 0 1 -8 -8 v-72 z" fill="#2B1D16"/>
+      <rect x="22" y="10" width="56" height="10" rx="3" fill="#C4763B"/>
+      <rect x="30" y="52" width="40" height="34" rx="4" fill="#F5EDE3"/>
+      <text x="50" y="75" text-anchor="middle" font-family="'IBM Plex Sans Arabic',sans-serif" font-size="15" font-weight="600" fill="#2B1D16">${label}</text>
+    </svg>`;
+  Object.entries(PRODUCTS).forEach(([id, p]) => {
+    const card = document.createElement("article");
+    card.className = "card";
+    card.id = "card-" + id;
+    card.innerHTML = `
+      ${bagSvg(p.ar)}
+      <div class="card-name">${p.name} <span class="card-ar" dir="rtl" lang="ar">${p.ar}</span></div>
+      <p class="card-notes">${p.notes}</p>
+      <div class="card-foot">
+        <div class="price">EGP ${p.price} <small>/ 250g</small></div>
+        <button class="add-btn" data-add="${id}">Add</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  /* ---- Mood selector ---- */
+  document.querySelectorAll(".mood, .calc-cta").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const el = document.getElementById(btn.dataset.target);
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.classList.add("flash");
+      setTimeout(() => el.classList.remove("flash"), 2200);
+    });
+  });
+
+  /* ---- Calculator ---- */
+  function runCalc() {
+    const cups = +document.getElementById("cups").value;
+    const people = +document.getElementById("people").value;
+    const grams = +document.getElementById("method").value;
+    document.getElementById("cupsVal").textContent = cups;
+    document.getElementById("peopleVal").textContent = people;
+    const monthly = cups * people * grams * 30;
+    const bags = Math.max(1, Math.ceil(monthly / 250));
+    let pkg, pkgId;
+    if (bags <= 1) { pkg = "El Ta'aruf is a great start — then Shahri"; pkgId = "pkg-taaruf"; }
+    else if (bags <= 2) { pkg = "Shahri covers you exactly"; pkgId = "pkg-shahri"; }
+    else if (bags <= 4) { pkg = "Beit Mazag is your package"; pkgId = "pkg-beit"; }
+    else { pkg = "That's office scale — talk to us about Lel Sherka"; pkgId = "pkg-sherka"; }
+    document.getElementById("calcResult").innerHTML = `You need <span>${bags} bag${bags > 1 ? "s" : ""}</span> a month`;
+    document.getElementById("calcNote").textContent = `That's about ${monthly.toLocaleString("en-EG")}g of coffee monthly — ${pkg}.`;
+    document.getElementById("calcCta").dataset.target = pkgId;
+  }
+  ["cups", "people", "method"].forEach(id => document.getElementById(id).addEventListener("input", runCalc));
+  runCalc();
+
+  /* ---- Cart ---- */
+  const cart = {};
+  const CATALOG = () => ({ ...PRODUCTS, ...Object.fromEntries(Object.entries(PACKAGES).filter(([, p]) => !p.contact)) });
+  const drawer = document.getElementById("drawer");
+  const overlay = document.getElementById("overlay");
+  const money = (n) => "EGP " + n.toLocaleString("en-EG");
+
+  function renderCart() {
+    const items = document.getElementById("drawerItems");
+    const cat = CATALOG();
+    const keys = Object.keys(cart).filter(k => cart[k] > 0);
+    document.getElementById("cartCount").textContent = keys.reduce((s, k) => s + cart[k], 0);
+    if (!keys.length) {
+      items.innerHTML = `<p class="d-empty" dir="rtl" lang="ar">السلة فاضية — اختار باقتك الأول ☕</p>`;
+      document.getElementById("dTotal").textContent = money(0);
+      return 0;
+    }
+    let total = 0;
+    items.innerHTML = keys.map(k => {
+      const p = cat[k], line = p.price * cart[k];
+      total += line;
+      return `<div class="d-item">
+        <span>${p.name} <span dir="rtl" lang="ar">${p.ar}</span></span>
+        <span class="d-qty">
+          <button data-dec="${k}" aria-label="Remove one ${p.name}">&minus;</button>
+          <span>${cart[k]}</span>
+          <button data-inc="${k}" aria-label="Add one ${p.name}">+</button>
+        </span>
+        <strong>${money(line)}</strong>
+      </div>`;
+    }).join("");
+    document.getElementById("dTotal").textContent = money(total);
+    return total;
+  }
+  const openDrawer = () => { renderCart(); drawer.classList.add("open"); overlay.classList.add("show"); };
+  const closeDrawer = () => { drawer.classList.remove("open"); overlay.classList.remove("show"); };
+
+  document.addEventListener("click", (e) => {
+    const add = e.target.closest("[data-add]");
+    const inc = e.target.closest("[data-inc]");
+    const dec = e.target.closest("[data-dec]");
+    const contact = e.target.closest("[data-contact]");
+    if (add) { const k = add.dataset.add; cart[k] = (cart[k] || 0) + 1; openDrawer(); }
+    if (inc) { cart[inc.dataset.inc]++; renderCart(); }
+    if (dec) { cart[dec.dataset.dec] = Math.max(0, cart[dec.dataset.dec] - 1); renderCart(); }
+    if (contact) { openChat("عايز أعرف تفاصيل باقة الشركات 🏢"); }
+  });
+  document.getElementById("cartBtn").addEventListener("click", openDrawer);
+  document.getElementById("drawerClose").addEventListener("click", closeDrawer);
+  overlay.addEventListener("click", closeDrawer);
+
+  /* ---- Checkout ---- */
+  const modal = document.getElementById("checkoutModal");
+  document.getElementById("checkoutBtn").addEventListener("click", () => {
+    if (!Object.values(cart).some(q => q > 0)) return;
+    closeDrawer();
+    document.getElementById("checkoutForm").style.display = "block";
+    document.getElementById("confirmView").style.display = "none";
+    modal.classList.add("open");
+  });
+  document.getElementById("modalClose").addEventListener("click", () => modal.classList.remove("open"));
+
+  const validPhone = (p) => /^01[0125][0-9]{8}$/.test(p.replace(/[\s-]/g, ""));
+
+  document.getElementById("placeOrder").addEventListener("click", async () => {
+    if (document.getElementById("hp").value) return; /* honeypot */
+    const name = document.getElementById("fName").value.trim();
+    const phone = document.getElementById("fPhone").value.trim();
+    const area = document.getElementById("fArea").value;
+    const address = document.getElementById("fAddress").value.trim();
+    const notes = document.getElementById("fNotes").value.trim();
+    const phoneErr = document.getElementById("phoneErr");
+    phoneErr.style.display = validPhone(phone) ? "none" : "block";
+    if (!name || !validPhone(phone) || !area || !address) return;
+
+    const payload = {
+      customer: { name, phone: phone.replace(/[\s-]/g, ""), area, address },
+      items: Object.entries(cart).filter(([, q]) => q > 0).map(([sku, qty]) => ({ sku, qty })),
+      notes, source: "web"
+    };
+
+    let code;
+    if (API_BASE) {
+      try {
+        const res = await fetch(API_BASE + "/api/orders", {
+          method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
+        });
+        code = (await res.json()).order_code;
+      } catch { code = null; }
+    }
+    if (!code) code = "MZ-" + (1000 + Math.floor(Math.random() * 9000)); /* demo mode */
+    try { localStorage.setItem("mazag_phone", payload.customer.phone); } catch {}
+
+    document.getElementById("orderCode").textContent = code;
+    document.getElementById("checkoutForm").style.display = "none";
+    document.getElementById("confirmView").style.display = "block";
+    Object.keys(cart).forEach(k => delete cart[k]);
+    renderCart();
+  });
+
+  /* ---- Chatbot: calls the FastAPI backend when API_BASE is set, demo reply otherwise ---- */
+  const chatPanel = document.getElementById("chatPanel");
+  let sessionId = "";
+  try { sessionId = localStorage.getItem("mazag_session") || ""; } catch {}
+  function openChat(prefill) {
+    chatPanel.classList.add("open");
+    if (prefill) document.getElementById("chatInput").value = prefill;
+  }
+  document.getElementById("chatFab").addEventListener("click", () => chatPanel.classList.toggle("open"));
+
+  function addMsg(cls, text) {
+    const body = document.getElementById("chatBody");
+    const div = document.createElement("div");
+    div.className = "msg " + cls;
+    div.dir = "auto";
+    div.textContent = text;
+    body.appendChild(div);
+    body.scrollTop = body.scrollHeight;
+    return div;
+  }
+
+  async function sendChat() {
+    const input = document.getElementById("chatInput");
+    const text = input.value.trim();
+    if (!text) return;
+    addMsg("user", text);
+    input.value = "";
+
+    if (!API_BASE) {
+      setTimeout(() => addMsg("bot", "قريباً هرد عليك بنفسي 😉 — المساعد الذكي بيتوصّل دلوقتي. لحد ما أجهز، الباقات فوق فيها كل التفاصيل."), 600);
+      return;
+    }
+    const typing = addMsg("bot", "...");
+    try {
+      const res = await fetch(API_BASE + "/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text, session_id: sessionId, phone: (() => { try { return localStorage.getItem("mazag_phone") || ""; } catch { return ""; } })() })
+      });
+      const data = await res.json();
+      typing.textContent = data.reply;
+      if (data.session_id) {
+        sessionId = data.session_id;
+        try { localStorage.setItem("mazag_session", sessionId); } catch {}
+      }
+    } catch {
+      typing.textContent = "معلش، النت قطع لحظة — جرب تاني ☕";
+    }
+  }
+  document.getElementById("chatSend").addEventListener("click", sendChat);
+  document.getElementById("chatInput").addEventListener("keydown", (e) => { if (e.key === "Enter") sendChat(); });
+</script>
+</body>
+</html>
